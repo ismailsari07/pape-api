@@ -70,8 +70,8 @@ This app connects to [Diyanet’s Prayer Time API](https://awqatsalah.diyanet.go
 
 ### 🕌 Jumaa
 - Dynamic: 
-  - During **DST**: 1:30 PM
-  - Outside **DST**: 12:30 PM
+  - During **DST**: 1:00 PM
+  - Outside **DST**: 2:00 PM
 
 ---
 
