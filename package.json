@@ -11,6 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "data-uri-to-buffer": "^6.0.2",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
     "luxon": "^3.6.1",
     "node-fetch": "^3.3.2"
   }

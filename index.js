@@ -1,6 +1,10 @@
 // import fetch module
 import fetch from 'node-fetch';
 import { DateTime } from 'luxon';
+import express from 'express';
+import dotenv from 'dotenv';
+dotenv.config();
+
 
 /**
  * Calculates the Fajr iqamah time based on the sunrise time.
@@ -129,8 +133,8 @@ const login = async () => {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      email: 'xismail.sari@gmail.com',
-      password: 'b%K20j+D', 
+      email: process.env.DIYANET_EMAIL,
+      password: process.env.DIYANET_PASSWORD,
     }),
   });
 
@@ -176,56 +180,67 @@ const getRamadanPrayerTimes = async (cityId, token) => {
   return data;
 }
 
-const main = async () => {
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get('/', (req, res) => {
+  res.send('Prayer Times API is running.');
+});
+
+app.get('/prayer-times', async (req, res) => {
+  try {
     const token = await login();
     let result;
-
     if (token) {
-        let prayerTime = await getStates(token);
-        let eidPrayerTime = await getEidPrayerTime(9118, token); 
-        let RamadanPrayerTime = await getRamadanPrayerTimes(9118, token); 
-        result = {
-            cityId:            9118,
-            cityName:          "Toronto",
-            gregorianDate:     prayerTime.data[0].gregorianDateShort,
-            hijriDate:         prayerTime.data[0].hijriDateShort,
-            jumaaPrayerTime: await getJumaaPrayerTime(),
-            dailyPrayerTimes: [
-                                { name: "Fajr",    time: prayerTime.data[0].fajr,    iqamah: calculateFajrIqamahFromSunrise(prayerTime.data[0].sunrise) },
-                                { name: "Sunrise", time: prayerTime.data[0].sunrise },
-                                { name: "Dhuhr",   time: prayerTime.data[0].dhuhr,   iqamah: await getJumaaPrayerTime() },
-                                { name: "Asr",     time: prayerTime.data[0].asr,     iqamah: await calculateAsrIqamah(prayerTime.data[0].asr) },  
-                                { name: "Maghrib", time: prayerTime.data[0].maghrib, iqamah: prayerTime.data[0].maghrib.split(":")[0] % 12 + ":" + prayerTime.data[0].maghrib.split(":")[1] },
-                                { name: "Isha",    time: prayerTime.data[0].isha,    iqamah: await calculateIshaIqamahTime(prayerTime.data[0].isha) }, 
-            ],
-            eidPrayerTimes: {
-                eidFitr: {
-                    date:      eidPrayerTime.data.eidAlFitrDate,
-                    hijriDate: eidPrayerTime.data.eidAlFitrHijri,
-                    time:      eidPrayerTime.data.eidAlFitrTime,
-                    firstIqamah: "08:00", 
-                    secondIqamah: "08:30" 
-                },
-                eidAdha: {
-                    date:      eidPrayerTime.data.eidAlAdhaDate,
-                    hijriDate: eidPrayerTime.data.eidAlAdhaHijri,
-                    time:      eidPrayerTime.data.eidAlAdhaTime,
-                    firstIqamah: "07:00",
-                    secondIqamah: "07:30"
-                }
-            },
-            RamadanPrayerTimes: RamadanPrayerTime.data,
-            success: true,
-            message: "Prayer times fetched successfully.",
-        }
+      let prayerTime = await getStates(token);
+      let eidPrayerTime = await getEidPrayerTime(9118, token);
+      let RamadanPrayerTime = await getRamadanPrayerTimes(9118, token);
+      result = {
+        cityId: 9118,
+        cityName: "Toronto",
+        gregorianDate: prayerTime.data[0].gregorianDateShort,
+        hijriDate: prayerTime.data[0].hijriDateShort,
+        jumaaPrayerTime: await getJumaaPrayerTime(),
+        dailyPrayerTimes: [
+          { name: "Fajr",    time: prayerTime.data[0].fajr,    iqamah: calculateFajrIqamahFromSunrise(prayerTime.data[0].sunrise) },
+          { name: "Sunrise", time: prayerTime.data[0].sunrise },
+          { name: "Dhuhr",   time: prayerTime.data[0].dhuhr,   iqamah: await getJumaaPrayerTime() },
+          { name: "Asr",     time: prayerTime.data[0].asr,     iqamah: await calculateAsrIqamah(prayerTime.data[0].asr) },
+          { name: "Maghrib", time: prayerTime.data[0].maghrib, iqamah: prayerTime.data[0].maghrib.split(":")[0] % 12 + ":" + prayerTime.data[0].maghrib.split(":")[1] },
+          { name: "Isha",    time: prayerTime.data[0].isha,    iqamah: await calculateIshaIqamahTime(prayerTime.data[0].isha) },
+        ],
+        eidPrayerTimes: {
+          eidFitr: {
+            date:      eidPrayerTime.data.eidAlFitrDate,
+            hijriDate: eidPrayerTime.data.eidAlFitrHijri,
+            time:      eidPrayerTime.data.eidAlFitrTime,
+            firstIqamah: "08:00",
+            secondIqamah: "08:30"
+          },
+          eidAdha: {
+            date:      eidPrayerTime.data.eidAlAdhaDate,
+            hijriDate: eidPrayerTime.data.eidAlAdhaHijri,
+            time:      eidPrayerTime.data.eidAlAdhaTime,
+            firstIqamah: "07:00",
+            secondIqamah: "07:30"
+          }
+        },
+        RamadanPrayerTimes: RamadanPrayerTime.data,
+        success: true,
+        message: "Prayer times fetched successfully."
+      };
     } else {
-        result = {
+      result = {
         success: false,
         message: 'Login failed or token not received.'
-        };
+      };
     }
-    console.log(result);
-    return result;      
-};
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
 
-main();
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
