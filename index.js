@@ -46,7 +46,7 @@ app.get("/prayer-times", async (req, res) => {
           },
           {
             name: "Maghrib",
-            time: prayerTime.data[0].maghrib,
+            time: convertTime(prayerTime.data[0].maghrib),
             iqamah: convertTime(prayerTime.data[0].maghrib)
           },
           {
