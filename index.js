@@ -77,7 +77,7 @@ app.get("/prayer-times", async (req, res) => {
         message: "Prayer times fetched successfully.",
       };
 
-      result.notices = await generateIqamaChangeNotices(result.dailyPrayerTimes, token);
+      result.notices = /*await generateIqamaChangeNotices(result.dailyPrayerTimes, token);*/ [];
     } else {
       result = {
         success: false,
