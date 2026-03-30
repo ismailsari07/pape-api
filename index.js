@@ -52,7 +52,7 @@ app.get("/prayer-times", async (req, res) => {
           {
             name: "Isha",
             time: convertTime(prayerTime.data[0].isha),
-            iqamah: /*await calculateIshaIqamahTime(prayerTime.data[0].isha),*/ "7:45",
+            iqamah: await calculateIshaIqamahTime(prayerTime.data[0].isha),
           },
         ],
         notices: [],
