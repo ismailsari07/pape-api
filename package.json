@@ -10,6 +10,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
     "data-uri-to-buffer": "^6.0.2",
     "dotenv": "^16.5.0",
